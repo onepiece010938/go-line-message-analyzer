@@ -1,0 +1,5 @@
+Call 5 nz
+Photo 5 nz
+Sticker 5 nz
+Vedio 5 nz
+Voice 5 nz
