@@ -55,9 +55,9 @@ func WordCould(path string, cache *bigcache.BigCache, segmenter *gse.Segmenter) 
 				}
 				一個中文字佔3個長度
 			*/
-			if timeString[0:6] == "上午" {
+			if timeString[0:6] == "上午" || timeString[0:6] == "AM" {
 				timeString = timeString[6:] + " AM"
-			} else if timeString[0:6] == "下午" {
+			} else if timeString[0:6] == "下午" || timeString[0:6] == "PM" {
 				timeString = timeString[6:] + " PM"
 			}
 			// timeString

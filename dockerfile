@@ -17,6 +17,8 @@ RUN apt-get update && apt-get install -y sudo openssh-server git curl gcc protob
     && touch /home/ubuntu/start_ssh.sh && echo "#!/bin/bash" && echo "echo 'ubuntu' | sudo -S service ssh start" >> /home/ubuntu/start_ssh.sh \
     && echo ". /home/ubuntu/start_ssh.sh" >> /home/ubuntu/.bashrc 
 # For timezone
+# graphviz golang pprof 使用web可視化工具
+RUN apt-get install graphviz gv
 
 WORKDIR /workspace
 ## git toolkits and install golang 1.17.6

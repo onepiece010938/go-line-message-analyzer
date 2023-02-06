@@ -1,9 +1,15 @@
 package word
 
 import (
+	"bufio"
 	"context"
+	"encoding/json"
 	"github.com/allegro/bigcache/v3"
+	"github.com/go-ego/gse"
 	"github.com/stretchr/testify/require"
+	"log"
+	"os"
+	"strings"
 	"testing"
 	"time"
 )
@@ -137,4 +143,150 @@ func Test_setCacheWordCloud(t *testing.T) {
 			}
 		})
 	}
+}
+
+// use sonic
+func BenchmarkWordCloud(b *testing.B) {
+
+	testCache, err := bigcache.New(context.Background(), TestConfig)
+	if err != nil {
+		log.Fatal("cannot create :", err)
+	}
+	segmentor := &gse.Segmenter{
+		AlphaNum: true,
+	}
+	err = segmentor.LoadDict()
+	if err != nil {
+		log.Fatal("cannot create :", err)
+	}
+	path := "/workspace/go-line-message-analyzer/internal/test_en_line.txt"
+	b.ResetTimer() // 如果某個函數再回圈內 又不需要計算benchmark，則在該函數上下一行加入 b.StopTimer() b.StartTimer()
+
+	for i := 0; i < b.N; i++ {
+		WordCould(path, testCache, segmentor)
+	}
+	b.StopTimer()
+}
+func BenchmarkWordCount(b *testing.B) {
+
+	segmentor := &gse.Segmenter{
+		AlphaNum: true,
+	}
+	err := segmentor.LoadDict()
+	if err != nil {
+		log.Fatal("cannot create :", err)
+	}
+	path := "/workspace/go-line-message-analyzer/internal/test_en_line.txt"
+
+	wordCountTmp := make(map[string]int)
+	// senderMap map
+	f, err := os.Open(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	scanner := bufio.NewScanner(f)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		// b.StopTimer()
+		for scanner.Scan() {
+			// do something with a line
+			line := strings.Split(scanner.Text(), "\t")
+			if len(line) > 2 {
+				_, _, content := line[0], line[1], line[2]
+				words := segmentor.Slice(content)
+				b.StartTimer()
+				wordCount(&wordCountTmp, words)
+				b.StopTimer()
+			}
+		}
+	}
+
+}
+func BenchmarkBigCacheUseJSON(b *testing.B) {
+	// 前置作業
+	testCache, err := bigcache.New(context.Background(), TestConfig)
+	if err != nil {
+		log.Fatal("cannot create :", err)
+	}
+	segmentor := &gse.Segmenter{
+		AlphaNum: true,
+	}
+	err = segmentor.LoadDict()
+	if err != nil {
+		log.Fatal("cannot create :", err)
+	}
+	data := PrePare(testCache, segmentor)
+	b.ResetTimer() // 直接reset benchmark 可省略上面運行時間
+	for i := 0; i < b.N; i++ {
+		JSONSetCacheWordCloud("testUUID", &data, testCache)
+		JSONGetCacheWordCloud("testUUID", &data, testCache)
+	}
+	b.StopTimer()
+}
+
+func JSONGetCacheWordCloud(UUID string, result *map[string]int, cache *bigcache.BigCache) error {
+
+	// fmt.Print(cache)
+	prefixKey := UUID + ":wordCloud"
+	CacheValue, err := cache.Get(prefixKey)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(CacheValue, &result)
+	if err != nil {
+		return err
+	}
+	return err
+
+}
+func JSONSetCacheWordCloud(UUID string, Infomap *map[string]int, cache *bigcache.BigCache) error {
+
+	prefixKey := UUID + ":wordCloud"
+	str, err := json.Marshal(Infomap)
+	if err != nil {
+
+		return err
+	}
+	err = cache.Set(prefixKey, str)
+	if err != nil {
+
+		return err
+	}
+	return nil
+}
+func PrePare(cache *bigcache.BigCache, segmenter *gse.Segmenter) map[string]int {
+	path := "/workspace/go-line-message-analyzer/internal/test_en_line.txt"
+	segmentor := &gse.Segmenter{
+		AlphaNum: true,
+	}
+
+	// seg    gse.Segmenter
+	// posSeg pos.Segmenter
+	err := segmentor.LoadDict()
+	if err != nil {
+		log.Fatal("cannot create cache:", err)
+	}
+	wordCountMap := make(map[string]int)
+	// open file
+	f, err := os.Open(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	// read the file line by line using scanner
+	scanner := bufio.NewScanner(f)
+	// wordsSlice := []string{}
+	for scanner.Scan() {
+		// do something with a line
+		line := strings.Split(scanner.Text(), "\t")
+		if len(line) > 2 {
+			_, _, content := line[0], line[1], line[2]
+
+			words := segmentor.Slice(content)
+			wordCount(&wordCountMap, words)
+		}
+	}
+	return wordCountMap
 }
