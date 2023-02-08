@@ -1,11 +1,12 @@
 /*
 Copyright © 2023 Raymond onepiece010938@gmail.com
-
 */
 package cmd
 
 import (
 	"fmt"
+
+	"github.com/onepiece010938/go-line-message-analyzer/cmd/server"
 
 	"github.com/spf13/cobra"
 )
@@ -22,6 +23,7 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("start called")
+		server.StartServer()
 	},
 }
 

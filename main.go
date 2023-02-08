@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 package main
 
-import "go-line-message-analyzer/cmd"
+import "github.com/onepiece010938/go-line-message-analyzer/cmd"
 
 func main() {
 	cmd.Execute()

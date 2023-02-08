@@ -1,15 +1,16 @@
-package routers
+package router
 
 import (
 	"context"
-	"go-line-message-analyzer/internal/app"
-	v1 "go-line-message-analyzer/internal/router/api/v1"
-	"go-line-message-analyzer/internal/router/middleware"
+
+	"github.com/onepiece010938/go-line-message-analyzer/internal/app"
+	v1 "github.com/onepiece010938/go-line-message-analyzer/internal/router/api/v1"
+	"github.com/onepiece010938/go-line-message-analyzer/internal/router/middleware"
 
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 )
 
+/*
 func InitRouter(ctx context.Context, app *app.Application) *gin.Engine {
 	// docs.SwaggerInfo.BasePath = "/api/v1"
 
@@ -46,4 +47,26 @@ func setUpRouter(router *gin.Engine, app *app.Application) {
 		v1.RegisterRouter(api, app)
 		//v2.RegisterRouter(api)
 	}
+}
+*/
+
+func SetGeneralMiddlewares(ctx context.Context, ginRouter *gin.Engine) {
+	ginRouter.Use(gin.Recovery())
+	ginRouter.Use(middleware.Cors())
+
+}
+func RegisterHandlers(router *gin.Engine, app *app.Application) {
+	registerAPIHandlers(router, app)
+}
+
+func registerAPIHandlers(router *gin.Engine, app *app.Application) {
+	// Build middlewares
+	// BearerToken := NewAuthMiddlewareBearer(app)
+
+	api := router.Group("/api")
+	{
+		v1.RegisterRouter(api, app)
+		//v2.RegisterRouter(api)
+	}
+
 }

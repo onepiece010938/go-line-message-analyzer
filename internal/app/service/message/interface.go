@@ -1,4 +1,5 @@
 package message
 
-type MessageServiceRepository interface {
-}
+// type MessageServices interface {
+// 	GetMessageByUser(ctx context.Context, username string)
+// }
