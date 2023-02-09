@@ -17,7 +17,7 @@ func (i *AnalyzeService) CreateAnalyze(ctx context.Context, param CreateAnalyzeP
 	// var result message.MessageDomainResult
 	// result = message.MessageDomainFunc("aabcccc")
 	// fmt.Println(result)
-	i.messageCache.GetMessageCache("")
+	i.analyzeServiceCache.GetMessageCache("")
 
 	return nil
 }

@@ -1,5 +1,5 @@
 package analyze
 
-type MessageCache interface {
+type AnalyzeServiceCacheI interface {
 	GetMessageCache(input string) string
 }

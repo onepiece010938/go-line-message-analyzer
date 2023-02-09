@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/onepiece010938/go-line-message-analyzer/internal/adapter/cache"
 	serviceAnalyze "github.com/onepiece010938/go-line-message-analyzer/internal/app/service/analyze"
@@ -17,14 +16,14 @@ type Application struct {
 }
 
 func NewApplication(ctx context.Context, cache cache.CacheI) *Application {
-	fmt.Println(ctx)
-	// New Service
-	messageService := serviceMessage.NewMessageService(ctx, serviceMessage.MessageServiceParam{})
+
 	// Create application
 	app := &Application{
-		MessageService: messageService,
+		MessageService: serviceMessage.NewMessageService(ctx, serviceMessage.MessageServiceParam{
+			MessageServiceCache: cache,
+		}),
 		AnalyzeService: serviceAnalyze.NewAnalyzeService(ctx, serviceAnalyze.AnalyzeServiceParam{
-			MessageCache: cache,
+			AnalyzeServiceCache: cache,
 		}),
 	}
 	return app
