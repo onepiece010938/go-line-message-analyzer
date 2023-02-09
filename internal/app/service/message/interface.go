@@ -1,5 +1,5 @@
 package message
 
-// type MessageServices interface {
-// 	GetMessageByUser(ctx context.Context, username string)
-// }
+type MessageServiceCacheI interface {
+	GetMessageCache(input string) string
+}
