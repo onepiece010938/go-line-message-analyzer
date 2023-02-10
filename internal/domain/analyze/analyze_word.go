@@ -1,0 +1,5 @@
+package analyze
+
+func CalculateWordAmount() {
+
+}

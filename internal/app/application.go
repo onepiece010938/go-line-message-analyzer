@@ -6,6 +6,7 @@ import (
 	"github.com/onepiece010938/go-line-message-analyzer/internal/adapter/cache"
 	serviceAnalyze "github.com/onepiece010938/go-line-message-analyzer/internal/app/service/analyze"
 	serviceMessage "github.com/onepiece010938/go-line-message-analyzer/internal/app/service/message"
+	serviceWord "github.com/onepiece010938/go-line-message-analyzer/internal/app/service/word"
 )
 
 type Application struct {
@@ -13,6 +14,7 @@ type Application struct {
 	// ImageService *serviceImage.ImageService
 	AnalyzeService *serviceAnalyze.AnalyzeService
 	MessageService *serviceMessage.MessageService
+	WordService    *serviceWord.WordService
 }
 
 func NewApplication(ctx context.Context, cache cache.CacheI) *Application {
