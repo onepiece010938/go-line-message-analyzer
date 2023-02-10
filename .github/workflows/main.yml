@@ -35,7 +35,7 @@ jobs: # Define jobs to run
         uses: actions/checkout@v2
       # Sets up the gcloud cli with the credentials we previously created, and will be storing within Github as secrets.
       - name: Setup Cloud cli
-        uses: google-github-actions/setup-gcloud@v0.2.0
+        uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ env.PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
@@ -49,7 +49,7 @@ jobs: # Define jobs to run
           docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} .
           docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }}
       - name: Deploy to Cloud Run
-        id: gohibeesh
+        id: line-message-analyzer
         uses: google-github-actions/deploy-cloudrun@v1
         with:
           service: ${{ env.SERVICE }}
@@ -57,4 +57,4 @@ jobs: # Define jobs to run
           region: ${{ env.REGION }}
 
       - name: Show Output
-        run: echo ${{ steps.gohibeesh.outputs.url }}
+        run: echo ${{ steps.line-message-analyzer.outputs.url }}
