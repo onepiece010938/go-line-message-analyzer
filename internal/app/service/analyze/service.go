@@ -3,15 +3,15 @@ package analyze
 import "context"
 
 type AnalyzeService struct {
-	messageCache MessageCache
+	analyzeServiceCache AnalyzeServiceCacheI
 }
 
 type AnalyzeServiceParam struct {
-	MessageCache MessageCache
+	AnalyzeServiceCache AnalyzeServiceCacheI
 }
 
 func NewAnalyzeService(_ context.Context, param AnalyzeServiceParam) *AnalyzeService {
 	return &AnalyzeService{
-		messageCache: param.MessageCache,
+		analyzeServiceCache: param.AnalyzeServiceCache,
 	}
 }

@@ -60,6 +60,7 @@ func NewCache(bigcache *bigcache.BigCache) *Cache {
 }
 func InitBigCache(rootCtx context.Context) *bigcache.BigCache {
 	cache, initErr := bigcache.New(rootCtx, config)
+
 	if initErr != nil {
 		log.Fatal(initErr)
 	}
