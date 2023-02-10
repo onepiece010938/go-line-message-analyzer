@@ -58,7 +58,7 @@ func BenchmarkSONICShortBigCache(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		SetSONICShortWordCloud("testBigCache", &data)
-		GetSONICShortWordCloud("testBigCache")
+		// GetSONICShortWordCloud("testBigCache")
 	}
 	b.StopTimer()
 }
@@ -73,7 +73,7 @@ var (
 		Shards: 1024,
 
 		// time after which entry can be evicted  時間到後Key判定死亡 但不刪除
-		LifeWindow: 20 * time.Second,
+		LifeWindow: 60 * time.Second,
 		// LifeWindow: 10 * time.Minute,
 
 		// Interval between removing expired entries (clean up).
@@ -117,7 +117,37 @@ func NewCache() (*bigcache.BigCache, error) {
 
 	return cache, nil
 }
-
+func TestBigCache(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	// ctx := context.Background()
+	cache, initErr := bigcache.New(ctx, config)
+	if initErr != nil {
+		log.Fatal(initErr)
+	}
+	cache.Set("test1", []byte("aaa"))
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				fmt.Println("got the stop channel")
+				return
+			default:
+				// cache.Get()
+				// fmt.Println("still working")
+				GetSONICShortWordCloud("test1", cache)
+				time.Sleep(1 * time.Second)
+			}
+		}
+	}()
+	time.Sleep(5 * time.Second)
+	fmt.Println("stop the gorutine")
+	cancel()
+	GetSONICShortWordCloud("aaa", cache)
+	time.Sleep(5 * time.Second)
+	cache.Set("test1", []byte("aaa"))
+	GetSONICShortWordCloud("aaa", cache)
+	time.Sleep(5 * time.Second)
+}
 func wordSegment(path string, segmenter *gse.Segmenter) map[string]int {
 
 	wordCountMap := map[string]int{}
@@ -257,32 +287,23 @@ func SetCacheWordCloud(UUID string, Infomap *map[string]int) error {
 	}
 	return nil
 }
-func GetSONICShortWordCloud(UUID string) (*map[string]int, error) {
+func GetSONICShortWordCloud(UUID string, cache *bigcache.BigCache) error {
 
 	// fmt.Print(cache)
-	prefixKey := WordCacheKey + UUID + ":"
-	CacheValue, err := cache.Get(keyInfo + prefixKey)
+	prefixKey := UUID
+	CacheValue, err := cache.Get(prefixKey)
 	if err != nil {
 		fmt.Print(err)
-		return nil, err
+		return err
 	}
 	p := ""
 	err = sonic.Unmarshal(CacheValue, &p)
-	ressultKeyMap := make(map[string]int)
+	// ressultKeyMap := make(map[string]int)
 
-	splitCache := strings.Split(p, " ")
-	for _, key := range splitCache[:len(splitCache)-1] {
-		var value int
-		CacheValue, err := cache.Get(prefixKey + key)
-		err = sonic.Unmarshal(CacheValue, &value)
-		// intCacheValue, err := strconv.Atoi(string(CacheValue))
-		if err != nil {
-			return nil, err
-		}
-		ressultKeyMap[key] = value
-	}
+	// splitCache := strings.Split(p, " ")
 
-	return &ressultKeyMap, err
+	fmt.Println("live")
+	return err
 }
 func SetSONICShortWordCloud(UUID string, Infomap *map[string]int) error {
 
