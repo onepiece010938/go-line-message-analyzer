@@ -15,15 +15,15 @@ jobs: # Define jobs to run
     runs-on: ubuntu-latest # Define job-specific info
     steps: # Define job steps
       # Checks out project source code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       # Sets up go based on the version
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: 1.19
     # Lint the incoming code and validate that it meets project’s standards
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v2.5.2
+        uses: golangci/golangci-lint-action@v3
 
       - name: Build
         run: go build -v ./...
@@ -50,7 +50,7 @@ jobs: # Define jobs to run
           docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }}
       - name: Deploy to Cloud Run
         id: gohibeesh
-        uses: google-github-actions/deploy-cloudrun@v0.4.0
+        uses: google-github-actions/deploy-cloudrun@v1
         with:
           service: ${{ env.SERVICE }}
           image: gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }}
