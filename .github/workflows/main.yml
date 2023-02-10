@@ -1,7 +1,7 @@
 name: Main
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
-  SERVICE: line-message-analyzer # google run service name
+  SERVICE: go-line-message-analyzer # google run service name
   REGION: us-central1
 
 on: # When do you want it to run
