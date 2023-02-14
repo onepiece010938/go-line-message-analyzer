@@ -27,9 +27,10 @@ func StartServer() {
 	cache := cache.NewCache(cache.InitBigCache(rootCtx))
 	app := app.NewApplication(rootCtx, cache)
 
+	ginRouter := InitRouter(rootCtx, app)
 	// Run server
 	wg.Add(1)
-	runHTTPServer(rootCtx, &wg, PORT, app)
+	runHTTPServer(rootCtx, &wg, ginRouter, PORT)
 
 	// Listen to SIGTERM/SIGINT to close
 	var gracefulStop = make(chan os.Signal, 1)
@@ -51,18 +52,22 @@ func StartServer() {
 	}
 }
 
-func runHTTPServer(rootCtx context.Context, wg *sync.WaitGroup, port int, app *app.Application) {
+func InitRouter(rootCtx context.Context, app *app.Application) (ginRouter *gin.Engine) {
 	// Set to release mode to disable Gin logger
 	gin.SetMode(gin.ReleaseMode)
 
 	// Create gin router
-	ginRouter := gin.New()
+	ginRouter = gin.New()
 
 	// Set general middleware
 	router.SetGeneralMiddlewares(rootCtx, ginRouter)
 
 	// Register all handlers
 	router.RegisterHandlers(ginRouter, app)
+
+	return ginRouter
+}
+func runHTTPServer(rootCtx context.Context, wg *sync.WaitGroup, ginRouter *gin.Engine, port int) {
 
 	// Build HTTP server
 	httpAddr := fmt.Sprintf("0.0.0.0:%d", port)

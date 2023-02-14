@@ -1,0 +1,40 @@
+name: GitHub Actions Build Go bin
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "feature-aws"
+
+jobs:
+  Pull-And-Run:
+    # needs: build_and_test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+
+      - name: Get project resource
+        uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.19' # The Go version to download (if necessary) and use.
+
+      - name: Build Lambda bootstrap
+        run: |
+          GOOS=linux GOARCH=arm64 go build -o bootstrap main.go
+          zip bootstrap.zip bootstrap
+          aws lambda update-function-code --function-name line-message-analyzer --zip-file fileb://bootstrap.zip
+
+
+      # - name: Archive Lambda artifacts
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: ZipLambda
+      #     path: ~/bootstrap
+
