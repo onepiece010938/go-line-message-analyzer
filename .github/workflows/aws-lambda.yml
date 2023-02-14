@@ -4,14 +4,17 @@ on:
   push:
     branches:
       - "feature-aws"
+  pull_request:
+    branches:
+      - "main"
 
 jobs:
-  Pull-And-Run:
+  Build-And-Run:
     # needs: build_and_test
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -24,7 +27,14 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: '1.19' # The Go version to download (if necessary) and use.
+      - name: Test
+        run: go test -v ./... -race -coverprofile=coverage.out -covermode=atomic
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          
       - name: Build Lambda bootstrap
         run: |
           GOOS=linux GOARCH=arm64 go build -o bootstrap main.go
@@ -38,3 +48,6 @@ jobs:
       #     name: ZipLambda
       #     path: ~/bootstrap
 
+ 
+
+ 
