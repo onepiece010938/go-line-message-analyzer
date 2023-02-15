@@ -3,7 +3,7 @@ package analyze
 import (
 	"bufio"
 	"fmt"
-	"os"
+	"mime/multipart"
 	"sort"
 	"strings"
 	"unicode"
@@ -27,12 +27,11 @@ func pickZHAndENWord(x []rune) bool {
 	}
 	return false
 }
-func SplitWordToCloud(UUID string, file *os.File, segmenter *gse.Segmenter) map[string]int {
+func SplitWordToCloud(UUID string, file *multipart.File, segmenter *gse.Segmenter) map[string]int {
 	// segmenter *gse.Segmenter
-	defer file.Close()
 
 	WordCloudMap := make(map[string]int)
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(*file)
 	// wordsSlice := []string{}
 	for scanner.Scan() {
 
@@ -61,7 +60,7 @@ func SplitWordToCloud(UUID string, file *os.File, segmenter *gse.Segmenter) map[
 			delete(WordCloudMap, key)
 		}
 	}
-
+	fmt.Println(WordCloudMap)
 	return WordCloudMap
 	// delete(WordCloudMap, "貼圖")
 	// delete(WordCloudMap, "照片")

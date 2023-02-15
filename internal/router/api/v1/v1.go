@@ -11,5 +11,6 @@ func RegisterRouter(router *gin.RouterGroup, app *app.Application) {
 	{
 		v1.GET("/sample", SAMPLE)
 		v1.GET("/analyze", StartAnalyze(app))
+		v1.POST("/Testanalyze", FakeStartAnalyze(app))
 	}
 }

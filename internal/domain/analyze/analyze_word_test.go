@@ -20,8 +20,7 @@ func TestWord(t *testing.T) {
 	// seg    gse.Segmenter
 	// posSeg pos.Segmenter
 	err = segmentor.LoadDict()
-	segmentor.LoadDict("D:/Users/2327/go/pkg/mod/github.com/go-ego/gse@v0.80.2/data/dict/en/dict.txt")
-	// f.Close()
+	f.Close()
 	wordcloud := SplitWordToCloud("aaa", f, segmentor)
 	SortWordCloudRank("aaa", wordcloud)
 }
