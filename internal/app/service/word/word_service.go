@@ -5,6 +5,7 @@ import (
 )
 
 func (i *WordService) WordCloud(ctx context.Context, username string) (*map[string]int, error) {
+
 	var value *map[string]int
 	err := i.wordServiceCache.GetWordCloudCache(username, value)
 	if err != nil {
