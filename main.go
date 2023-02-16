@@ -21,8 +21,62 @@ THE SOFTWARE.
 */
 package main
 
-import "github.com/onepiece010938/go-line-message-analyzer/cmd"
+import (
+	"context"
+	"os"
 
-func main() {
-	cmd.Execute()
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
+	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
+	"github.com/onepiece010938/go-line-message-analyzer/cmd"
+	"github.com/onepiece010938/go-line-message-analyzer/cmd/server"
+	"github.com/onepiece010938/go-line-message-analyzer/internal/adapter/cache"
+	"github.com/onepiece010938/go-line-message-analyzer/internal/app"
+)
+
+var (
+	ginLambda   *ginadapter.GinLambda
+	cacheLambda *cache.Cache
+)
+
+func Handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	return ginLambda.ProxyWithContext(ctx, request)
 }
+func main() {
+
+	deploy := os.Getenv("DEPLOY_PLATFORM")
+	if deploy == "lambda" {
+		rootCtx, _ := context.WithCancel(context.Background()) //nolint
+
+		cacheLambda = cache.NewCache(cache.InitBigCache(rootCtx))
+		app := app.NewApplication(rootCtx, cacheLambda)
+		ginRouter := server.InitRouter(rootCtx, app)
+		ginLambda = ginadapter.New(ginRouter)
+
+		lambda.Start(Handler)
+	} else {
+		cmd.Execute()
+	}
+
+}
+
+/*
+var ginLambda *ginadapter.GinLambda
+func main() {
+  g := gin.Default()
+  g.GET("/ping", func(c *gin.Context) {
+    c.String(http.StatusOK, "pong")
+  })
+  env := os.Getenv("GIN_MODE")
+  if env == "release" {
+    ginLambda = ginadapter.New(g)
+
+    lambda.Start(Handler)
+  } else {
+    g.Run(":8080")
+  }
+}
+func Handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+  return ginLambda.ProxyWithContext(ctx, request)
+}
+*/
