@@ -30,7 +30,10 @@ func FakeStartAnalyze(app *app.Application) gin.HandlerFunc {
 			return
 		}
 		// fmt.Println(p)
-		app.AnalyzeService.CreateAnalyze(ctx, analyze.CreateAnalyzeParm{Header: header})
+		err = app.AnalyzeService.CreateAnalyze(ctx, analyze.CreateAnalyzeParm{Header: header})
+		if err != nil {
+			fmt.Println(err)
+		}
 		c.JSON(http.StatusOK, "")
 		//curl --form "fileupload=@my-file.txt" https://example.com/resource.cgi
 	}
