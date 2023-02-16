@@ -27,7 +27,7 @@ func FakeStartAnalyze(app *app.Application) gin.HandlerFunc {
 		_, header, err := c.Request.FormFile("fileupload")
 		if err != nil {
 			fmt.Println(err)
-			return
+
 		}
 		// fmt.Println(p)
 		err = app.AnalyzeService.CreateAnalyze(ctx, analyze.CreateAnalyzeParm{Header: header})
