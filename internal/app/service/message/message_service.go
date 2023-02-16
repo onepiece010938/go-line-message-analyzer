@@ -15,7 +15,10 @@ type CreateMessageParm struct {
 func (i *MessageService) GetMessageByUser(ctx context.Context, username string) error {
 	fmt.Println("MessageService func GetMessageByUser()", username)
 	var cache []byte
-	sonic.Unmarshal(cache, cache)
+	err := sonic.Unmarshal(cache, cache)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	segmentor := &gse.Segmenter{
 		AlphaNum: true,

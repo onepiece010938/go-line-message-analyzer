@@ -13,9 +13,9 @@ func NewError(ctx *gin.Context, status int, err_code int, append_msg *string) {
 		*append_msg = " <append_msg>:" + *append_msg
 	}
 	er := HTTPError{
-		Status: status,
-		Code:   err_code,
-		// Message: e.GetMsg(err_code) + *append_msg,
+		Status:  status,
+		Code:    err_code,
+		Message: *append_msg,
 	}
 	ctx.JSON(status, er)
 }

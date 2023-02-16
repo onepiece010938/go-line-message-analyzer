@@ -13,7 +13,10 @@ import (
 func StartAnalyze(app *app.Application) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		app.AnalyzeService.CreateAnalyze(ctx, analyze.CreateAnalyzeParm{})
+		err := app.AnalyzeService.CreateAnalyze(ctx, analyze.CreateAnalyzeParm{})
+		if err != nil {
+			fmt.Println(err)
+		}
 		c.JSON(http.StatusOK, "")
 	}
 
