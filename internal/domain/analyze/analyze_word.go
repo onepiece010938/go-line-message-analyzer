@@ -39,7 +39,7 @@ func SplitWordToCloud(UUID string, file *multipart.File, segmenter *gse.Segmente
 		// ppp := scanner.Text()
 		// fmt.Println(ppp)
 		if len(line) > 2 {
-			_, _, content := line[0], line[1], line[2]
+			_, _, content := line[0], line[1], line[2] //nolint
 			// unicode.Is(unicode.Han)
 			// words := segmenter.Slice(content)
 			words := segmenter.Cut(content, false)
@@ -52,13 +52,14 @@ func SplitWordToCloud(UUID string, file *multipart.File, segmenter *gse.Segmente
 	}
 	// clear single(1,s,...or ! A)  map
 
-	for key, _ := range WordCloudMap {
+	for key := range WordCloudMap {
 
 		runeKey := []rune(key)
 		// len(runeKey) == 1 || len(runeKey) == 0
 		if len(runeKey) == 0 || pickZHAndENWord(runeKey) {
 			delete(WordCloudMap, key)
 		}
+
 	}
 	fmt.Println(WordCloudMap)
 	return WordCloudMap
