@@ -23,11 +23,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
+	"github.com/go-ego/gse"
 	"github.com/onepiece010938/go-line-message-analyzer/cmd"
 	"github.com/onepiece010938/go-line-message-analyzer/cmd/server"
 	"github.com/onepiece010938/go-line-message-analyzer/internal/adapter/cache"
@@ -47,9 +49,15 @@ func main() {
 	deploy := os.Getenv("DEPLOY_PLATFORM")
 	if deploy == "lambda" {
 		rootCtx, _ := context.WithCancel(context.Background()) //nolint
-
+		segmentor := &gse.Segmenter{                           // 暫時的
+			AlphaNum: true,
+		}
+		err := segmentor.LoadDict()
+		if err != nil {
+			fmt.Println(err)
+		}
 		cacheLambda = cache.NewCache(cache.InitBigCache(rootCtx))
-		app := app.NewApplication(rootCtx, cacheLambda)
+		app := app.NewApplication(rootCtx, cacheLambda, segmentor)
 		ginRouter := server.InitRouter(rootCtx, app)
 		ginLambda = ginadapter.New(ginRouter)
 
