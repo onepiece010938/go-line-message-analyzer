@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 
+	"github.com/go-ego/gse"
 	"github.com/onepiece010938/go-line-message-analyzer/internal/adapter/cache"
 	serviceAnalyze "github.com/onepiece010938/go-line-message-analyzer/internal/app/service/analyze"
 	serviceMessage "github.com/onepiece010938/go-line-message-analyzer/internal/app/service/message"
@@ -17,7 +18,7 @@ type Application struct {
 	WordService    *serviceWord.WordService
 }
 
-func NewApplication(ctx context.Context, cache cache.CacheI) *Application {
+func NewApplication(ctx context.Context, cache cache.CacheI, segmentor *gse.Segmenter) *Application {
 
 	// Create application
 	app := &Application{
@@ -26,6 +27,10 @@ func NewApplication(ctx context.Context, cache cache.CacheI) *Application {
 		}),
 		AnalyzeService: serviceAnalyze.NewAnalyzeService(ctx, serviceAnalyze.AnalyzeServiceParam{
 			AnalyzeServiceCache: cache,
+		}),
+		WordService: serviceWord.NewWordService(ctx, serviceWord.WordServiceParam{
+			WordServiceCache: cache,
+			WordSegmentor:    segmentor,
 		}),
 	}
 	return app

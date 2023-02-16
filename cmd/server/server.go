@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/go-ego/gse"
 	"github.com/onepiece010938/go-line-message-analyzer/internal/adapter/cache"
 	"github.com/onepiece010938/go-line-message-analyzer/internal/app"
 	"github.com/onepiece010938/go-line-message-analyzer/internal/router"
@@ -24,8 +25,15 @@ func StartServer() {
 	rootCtx, rootCtxCancelFunc := context.WithCancel(context.Background())
 	wg := sync.WaitGroup{}
 
+	segmentor := &gse.Segmenter{ // 暫時的
+		AlphaNum: true,
+	}
+	err := segmentor.LoadDict()
+	if err != nil {
+		fmt.Println(err)
+	}
 	cache := cache.NewCache(cache.InitBigCache(rootCtx))
-	app := app.NewApplication(rootCtx, cache)
+	app := app.NewApplication(rootCtx, cache, segmentor)
 
 	// Run server
 	wg.Add(1)

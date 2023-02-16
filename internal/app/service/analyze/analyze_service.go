@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"mime/multipart"
 
-	"github.com/go-ego/gse"
 	"github.com/onepiece010938/go-line-message-analyzer/internal/domain/analyze"
 )
 
@@ -24,15 +23,10 @@ func (i *AnalyzeService) CreateAnalyze(ctx context.Context, param CreateAnalyzeP
 	// result = message.MessageDomainFunc("aabcccc")
 	// fmt.Println(result)
 
-	segmentor := &gse.Segmenter{ // 暫時的
-		AlphaNum: true,
-	}
-
-	_ = segmentor.LoadDict()
-
+	seg := i.analyzeSegmentor
 	file, _ := param.Header.Open()
 	fileName := param.Header.Filename
 	// SplitWordToCloud
-	analyze.SplitWordToCloud(fileName, &file, segmentor)
+	analyze.SplitWordToCloud(fileName, &file, seg)
 	return nil
 }
