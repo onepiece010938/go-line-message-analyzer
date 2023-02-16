@@ -24,12 +24,13 @@ func StartAnalyze(app *app.Application) gin.HandlerFunc {
 func FakeStartAnalyze(app *app.Application) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		_, header, err := c.Request.FormFile("fileupload")
+		file, header, err := c.Request.FormFile("fileupload")
 		if err != nil {
 			fmt.Println(err)
+
 		}
 		// fmt.Println(p)
-		err = app.AnalyzeService.CreateAnalyze(ctx, analyze.CreateAnalyzeParm{Header: header})
+		err = app.AnalyzeService.CreateAnalyze(ctx, analyze.CreateAnalyzeParm{Header: header, File: &file})
 		if err != nil {
 			fmt.Println(err)
 		}

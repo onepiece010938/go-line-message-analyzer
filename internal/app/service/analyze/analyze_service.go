@@ -11,6 +11,7 @@ import (
 type CreateAnalyzeParm struct {
 	// CreateHistogramParams postgres.CreateHistogramParams
 	Header *multipart.FileHeader
+	File   *multipart.File
 }
 
 type AnalyzeMessageParm struct {
@@ -24,9 +25,9 @@ func (i *AnalyzeService) CreateAnalyze(ctx context.Context, param CreateAnalyzeP
 	// fmt.Println(result)
 
 	seg := i.analyzeSegmentor
-	file, _ := param.Header.Open()
+	file := param.File
 	fileName := param.Header.Filename
 	// SplitWordToCloud
-	analyze.SplitWordToCloud(fileName, &file, seg)
+	analyze.SplitWordToCloud(fileName, file, seg)
 	return nil
 }
