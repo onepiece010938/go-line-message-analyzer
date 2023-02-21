@@ -32,6 +32,8 @@ require (
 	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/iris-contrib/jade v1.1.4 // indirect
 	github.com/iris-contrib/schema v0.0.6 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/kataras/blocks v0.0.5 // indirect
 	github.com/kataras/golog v0.1.7 // indirect
@@ -67,6 +69,7 @@ require (
 
 require (
 	github.com/allegro/bigcache/v3 v3.1.0
+	github.com/aws/aws-sdk-go v1.44.205
 	github.com/bytedance/sonic v1.7.0
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -79,6 +82,8 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
+	github.com/line/line-bot-sdk-go v7.8.0+incompatible
+	github.com/line/line-bot-sdk-go/v7 v7.19.0
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect

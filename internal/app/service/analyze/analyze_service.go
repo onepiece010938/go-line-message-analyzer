@@ -31,3 +31,11 @@ func (i *AnalyzeService) CreateAnalyze(ctx context.Context, param CreateAnalyzeP
 	analyze.SplitWordToCloud(fileName, file, seg)
 	return nil
 }
+
+func (i *AnalyzeService) AnalyzeTest(ctx context.Context) (string, error) {
+	fmt.Println("AnalyzeService->func AnalyzeTest()")
+	// var result message.MessageDomainResult
+	// result = message.MessageDomainFunc("aabcccc")
+	// fmt.Println(result)
+	return "TESTTESTTEST", nil
+}

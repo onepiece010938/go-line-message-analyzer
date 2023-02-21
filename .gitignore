@@ -1,3 +1,4 @@
 picture
 *.txt
 coverage
+.env
