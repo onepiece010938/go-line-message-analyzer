@@ -23,10 +23,14 @@ package main
 
 import (
 	"context"
+	"log"
 	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ssm"
+	"github.com/aws/aws-sdk-go/service/ssm/ssmiface"
 	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/onepiece010938/go-line-message-analyzer/cmd"
@@ -39,6 +43,7 @@ var (
 	ginLambda        *ginadapter.GinLambda
 	cacheLambda      *cache.Cache
 	lineClientLambda *linebot.Client
+	ssmsvc           *SSM
 )
 
 func Handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -46,14 +51,26 @@ func Handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 }
 
 func main() {
+	// ssmsvc := NewSSMClient()
 
 	deploy := os.Getenv("DEPLOY_PLATFORM")
 	if deploy == "lambda" {
 		rootCtx, _ := context.WithCancel(context.Background()) //nolint
-		// lineClientLambda, err := linebot.New(os.Getenv("CHANNEL_SECRET"), os.Getenv("CHANNEL_ACCESS_TOKEN"))
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
+
+		ssmsvc = NewSSMClient()
+		lineSecret, err := ssmsvc.Param("CHANNEL_SECRET", true).GetValue()
+		if err != nil {
+			log.Println(err)
+		}
+		lineAccessToken, err := ssmsvc.Param("CHANNEL_ACCESS_TOKEN", true).GetValue()
+		if err != nil {
+			log.Println(err)
+		}
+		lineClientLambda, err = linebot.New(lineSecret, lineAccessToken)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		cacheLambda = cache.NewCache(cache.InitBigCache(rootCtx))
 
 		app := app.NewApplication(rootCtx, cacheLambda, lineClientLambda)
@@ -67,23 +84,53 @@ func main() {
 
 }
 
-/*
-var ginLambda *ginadapter.GinLambda
-func main() {
-  g := gin.Default()
-  g.GET("/ping", func(c *gin.Context) {
-    c.String(http.StatusOK, "pong")
-  })
-  env := os.Getenv("GIN_MODE")
-  if env == "release" {
-    ginLambda = ginadapter.New(g)
+// SSM is a SSM API client.
+type SSM struct {
+	client ssmiface.SSMAPI
+}
 
-    lambda.Start(Handler)
-  } else {
-    g.Run(":8080")
-  }
+func Sessions() (*session.Session, error) {
+	sess, err := session.NewSession()
+	svc := session.Must(sess, err)
+	return svc, err
 }
-func Handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-  return ginLambda.ProxyWithContext(ctx, request)
+
+func NewSSMClient() *SSM {
+	// Create AWS Session
+	sess, err := Sessions()
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	ssmsvc := &SSM{ssm.New(sess)}
+	// Return SSM client
+	return ssmsvc
 }
-*/
+
+type Param struct {
+	Name           string
+	WithDecryption bool
+	ssmsvc         *SSM
+}
+
+// Param creates the struct for querying the param store
+func (s *SSM) Param(name string, decryption bool) *Param {
+	return &Param{
+		Name:           name,
+		WithDecryption: decryption,
+		ssmsvc:         s,
+	}
+}
+
+func (p *Param) GetValue() (string, error) {
+	ssmsvc := p.ssmsvc.client
+	parameter, err := ssmsvc.GetParameter(&ssm.GetParameterInput{
+		Name:           &p.Name,
+		WithDecryption: &p.WithDecryption,
+	})
+	if err != nil {
+		return "", err
+	}
+	value := *parameter.Parameter.Value
+	return value, nil
+}
