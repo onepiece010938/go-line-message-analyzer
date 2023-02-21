@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 
 	"github.com/onepiece010938/go-line-message-analyzer/internal/domain/word"
 )
@@ -39,16 +38,13 @@ func (i *WordService) FilterCloud(ctx context.Context, WordParm FilterWordParm) 
 		return value, err
 	}
 
-	Cloud, err := word.GenerateFilterWordCloud(word.FilterCloud{Filter: WordParm.FilterWords, WordCloud: *WordParm.WordCloud})
-	if err != nil {
-		return nil, err
-	}
+	Cloud := word.GenerateFilterWordCloud(word.FilterCloud{Filter: WordParm.FilterWords, WordCloud: *WordParm.WordCloud})
 
 	err = i.wordServiceCache.SetFilterCloudCache(filterCloudKey, &Cloud)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("aaaaaa", WordParm.WordCloud)
+
 	return &Cloud, err
 }
 func (i *WordService) StringRank(ctx context.Context, WordParm FilterWordParm) (*[]string, error) {
