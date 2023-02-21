@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 
+	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/onepiece010938/go-line-message-analyzer/internal/adapter/cache"
 	serviceAnalyze "github.com/onepiece010938/go-line-message-analyzer/internal/app/service/analyze"
 	serviceMessage "github.com/onepiece010938/go-line-message-analyzer/internal/app/service/message"
@@ -13,12 +14,14 @@ type Application struct {
 	// ImageService *serviceImage.ImageService
 	AnalyzeService *serviceAnalyze.AnalyzeService
 	MessageService *serviceMessage.MessageService
+	LineBotClient  *linebot.Client
 }
 
-func NewApplication(ctx context.Context, cache cache.CacheI) *Application {
+func NewApplication(ctx context.Context, cache cache.CacheI, lineBotClient *linebot.Client) *Application {
 
 	// Create application
 	app := &Application{
+		LineBotClient: lineBotClient,
 		MessageService: serviceMessage.NewMessageService(ctx, serviceMessage.MessageServiceParam{
 			MessageServiceCache: cache,
 		}),

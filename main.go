@@ -28,6 +28,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
+	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/onepiece010938/go-line-message-analyzer/cmd"
 	"github.com/onepiece010938/go-line-message-analyzer/cmd/server"
 	"github.com/onepiece010938/go-line-message-analyzer/internal/adapter/cache"
@@ -35,21 +36,27 @@ import (
 )
 
 var (
-	ginLambda   *ginadapter.GinLambda
-	cacheLambda *cache.Cache
+	ginLambda        *ginadapter.GinLambda
+	cacheLambda      *cache.Cache
+	lineClientLambda *linebot.Client
 )
 
 func Handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	return ginLambda.ProxyWithContext(ctx, request)
 }
+
 func main() {
 
 	deploy := os.Getenv("DEPLOY_PLATFORM")
 	if deploy == "lambda" {
 		rootCtx, _ := context.WithCancel(context.Background()) //nolint
-
+		// lineClientLambda, err := linebot.New(os.Getenv("CHANNEL_SECRET"), os.Getenv("CHANNEL_ACCESS_TOKEN"))
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
 		cacheLambda = cache.NewCache(cache.InitBigCache(rootCtx))
-		app := app.NewApplication(rootCtx, cacheLambda)
+
+		app := app.NewApplication(rootCtx, cacheLambda, lineClientLambda)
 		ginRouter := server.InitRouter(rootCtx, app)
 		ginLambda = ginadapter.New(ginRouter)
 

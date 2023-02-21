@@ -11,21 +11,34 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	_ "github.com/joho/godotenv/autoload"
+	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/onepiece010938/go-line-message-analyzer/internal/adapter/cache"
 	"github.com/onepiece010938/go-line-message-analyzer/internal/app"
 	"github.com/onepiece010938/go-line-message-analyzer/internal/router"
-
-	"github.com/gin-gonic/gin"
 )
 
 var PORT int = 6666
+
+// func Line() {
+// 	LClient, err = linebot.New(os.Getenv("CHANNEL_SECRET"), os.Getenv("CHANNEL_ACCESS_TOKEN"))
+
+// }
 
 func StartServer() {
 	rootCtx, rootCtxCancelFunc := context.WithCancel(context.Background())
 	wg := sync.WaitGroup{}
 
 	cache := cache.NewCache(cache.InitBigCache(rootCtx))
-	app := app.NewApplication(rootCtx, cache)
+	// lineClient := linebot.NewLinebotClient(os.Getenv("CHANNEL_SECRET"), os.Getenv("CHANNEL_ACCESS_TOKEN"))
+	lineClient, err := linebot.New(os.Getenv("CHANNEL_SECRET"), os.Getenv("CHANNEL_ACCESS_TOKEN"))
+	if err != nil {
+		log.Fatal(err.Error() + " LINE38")
+	}
+	log.Println(os.Getenv("CHANNEL_SECRET") + " LINE40")
+
+	app := app.NewApplication(rootCtx, cache, lineClient)
 
 	ginRouter := InitRouter(rootCtx, app)
 	// Run server
@@ -68,7 +81,6 @@ func InitRouter(rootCtx context.Context, app *app.Application) (ginRouter *gin.E
 	return ginRouter
 }
 func runHTTPServer(rootCtx context.Context, wg *sync.WaitGroup, ginRouter *gin.Engine, port int) {
-
 	// Build HTTP server
 	httpAddr := fmt.Sprintf("0.0.0.0:%d", port)
 	server := &http.Server{
