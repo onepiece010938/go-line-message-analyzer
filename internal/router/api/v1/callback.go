@@ -442,6 +442,14 @@ func (l *LineHandler) handleText(ctx context.Context, app *app.Application, mess
 }
 
 func (l *LineHandler) handleFile(message *linebot.FileMessage, replyToken string) error {
+	content, err := l.bot.GetMessageContent(message.ID).Do()
+	if err != nil {
+		return l.replyText(replyToken, err.Error())
+	}
+
+	fmt.Println(content.Content)
+
+	defer content.Content.Close()
 	return l.replyText(replyToken, fmt.Sprintf("File `%s` (%d bytes) received.", message.FileName, message.FileSize))
 }
 
