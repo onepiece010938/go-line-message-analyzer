@@ -1,10 +1,13 @@
 package v1
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -442,6 +445,25 @@ func (l *LineHandler) handleText(ctx context.Context, app *app.Application, mess
 }
 
 func (l *LineHandler) handleFile(message *linebot.FileMessage, replyToken string) error {
+	content, err := l.bot.GetMessageContent(message.ID).Do()
+	if err != nil {
+		return l.replyText(replyToken, err.Error())
+	}
+	// content.Content
+
+	var f io.ReadCloser
+	f = content.Content
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := strings.Split(scanner.Text(), "\t")
+		if len(line) > 2 {
+			_, _, content := line[0], line[1], line[2] //nolint
+
+			fmt.Println(content)
+			fmt.Println("_________________________")
+		}
+	}
+	fmt.Println(content.Content)
 	return l.replyText(replyToken, fmt.Sprintf("File `%s` (%d bytes) received.", message.FileName, message.FileSize))
 }
 
