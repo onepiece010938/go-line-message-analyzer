@@ -48,7 +48,7 @@ func StartServer() {
 	}
 	log.Println(os.Getenv("CHANNEL_SECRET") + " LINE40")
 
-	app := app.NewApplication(rootCtx, cache, lineClient)
+	app := app.NewApplication(rootCtx, cache, lineClient, segmentor)
 
 	ginRouter := InitRouter(rootCtx, app)
 	// Run server

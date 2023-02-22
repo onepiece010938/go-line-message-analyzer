@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 
+	"github.com/go-ego/gse"
 	_ "github.com/go-ego/gse"
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/onepiece010938/go-line-message-analyzer/internal/adapter/cache"
@@ -20,7 +21,7 @@ type Application struct {
 	LineBotClient  *linebot.Client
 }
 
-func NewApplication(ctx context.Context, cache cache.CacheI, lineBotClient *linebot.Client) *Application {
+func NewApplication(ctx context.Context, cache cache.CacheI, lineBotClient *linebot.Client, segmentor *gse.Segmenter) *Application {
 
 	// Create application
 	app := &Application{

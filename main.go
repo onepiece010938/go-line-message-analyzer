@@ -23,6 +23,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -32,6 +33,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ssm"
 	"github.com/aws/aws-sdk-go/service/ssm/ssmiface"
 	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
+	"github.com/go-ego/gse"
 	_ "github.com/go-ego/gse"
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/onepiece010938/go-line-message-analyzer/cmd"
@@ -72,9 +74,16 @@ func main() {
 			log.Fatal(err)
 		}
 
+		segmentorLambda := &gse.Segmenter{ // 暫時的
+			AlphaNum: true,
+		}
+		err = segmentorLambda.LoadDict()
+		if err != nil {
+			fmt.Println(err)
+		}
 		cacheLambda = cache.NewCache(cache.InitBigCache(rootCtx))
 
-		app := app.NewApplication(rootCtx, cacheLambda, lineClientLambda)
+		app := app.NewApplication(rootCtx, cacheLambda, lineClientLambda, segmentorLambda)
 		ginRouter := server.InitRouter(rootCtx, app)
 		ginLambda = ginadapter.New(ginRouter)
 
