@@ -26,9 +26,11 @@ jobs:
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v3.4.0
+        with:
+          args: --out-format=checkstyle > golangci-lint.out
 
       - name: Run testing
-        run: go test -v ./... -race -coverprofile=coverage.out -covermode=atomic
+        run: go test -v ./... -race -coverprofile=coverage.out -covermode=atomic -json > report.json
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
