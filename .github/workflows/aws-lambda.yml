@@ -26,8 +26,9 @@ jobs:
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v3.4.0
-        with:
-          args: --out-format=checkstyle > golangci-lint.out
+        # golangci-lint didn't merge below PR yet
+        # with:
+        #   output-file: golangci-lint.out
 
       - name: Run testing
         run: go test -v ./... -race -coverprofile=coverage.out -covermode=atomic -json > report.json
