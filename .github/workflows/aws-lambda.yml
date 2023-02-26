@@ -6,6 +6,7 @@ on:
       - "main"
       - "feature-*"
   pull_request:
+    types: [opened, synchronize, reopened]
     branches:
       - "main"
 
@@ -15,6 +16,8 @@ jobs:
     steps:
       - name: Get project resource
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
       - name: Setup Go
         uses: actions/setup-go@v3
@@ -31,6 +34,13 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  
           
   Deploy-to-Lambda:
     runs-on: ubuntu-latest
