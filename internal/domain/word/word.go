@@ -17,5 +17,12 @@ func GenerateFilterWordCloud(wordDict FilterCloud) map[string]int {
 	for _, filter := range wordDict.Filter {
 		delete(returnWord, filter)
 	}
+	// egmentorLambda := &gse.Segmenter{ // 暫時的
+	// 	AlphaNum: true,
+	// }
+	// err = segmentorLambda.LoadDict()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 	return returnWord
 }

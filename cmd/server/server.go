@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-ego/gse"
 	_ "github.com/go-ego/gse"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -32,13 +31,6 @@ func StartServer() {
 	rootCtx, rootCtxCancelFunc := context.WithCancel(context.Background())
 	wg := sync.WaitGroup{}
 
-	segmentor := &gse.Segmenter{ // 暫時的
-		AlphaNum: true,
-	}
-	err := segmentor.LoadDict()
-	if err != nil {
-		fmt.Println(err)
-	}
 	cache := cache.NewCache(cache.InitBigCache(rootCtx))
 	// app := app.NewApplication(rootCtx, cache, segmentor)
 	// lineClient := linebot.NewLinebotClient(os.Getenv("CHANNEL_SECRET"), os.Getenv("CHANNEL_ACCESS_TOKEN"))
@@ -48,7 +40,7 @@ func StartServer() {
 	}
 	log.Println(os.Getenv("CHANNEL_SECRET") + " LINE40")
 
-	app := app.NewApplication(rootCtx, cache, lineClient, segmentor)
+	app := app.NewApplication(rootCtx, cache, lineClient)
 
 	ginRouter := InitRouter(rootCtx, app)
 	// Run server
