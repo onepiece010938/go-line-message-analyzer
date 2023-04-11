@@ -1,8 +1,11 @@
 package analyze
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"io"
+	"strings"
 )
 
 type CreateAnalyzeParm struct {
@@ -28,4 +31,26 @@ func (i *AnalyzeService) AnalyzeTest(ctx context.Context) (string, error) {
 	// result = message.MessageDomainFunc("aabcccc")
 	// fmt.Println(result)
 	return "TESTTESTTEST", nil
+}
+
+func (i *AnalyzeService) StartAnalyze(context io.ReadCloser) (string, error) {
+	var last string
+	scanner := bufio.NewScanner(context)
+	for scanner.Scan() {
+		row := strings.Split(scanner.Text(), "\t")
+		// value := domain photo analyze(row)
+		// if value!=nil{
+		//		adapter cache photo insert
+		//	}
+		// value := domain message analyze(row)
+		// if value!=nil{
+		//		adapter cache message insert
+		//	}
+		fmt.Println(row)
+		last = row[0]
+	}
+
+	defer context.Close()
+
+	return last, nil
 }

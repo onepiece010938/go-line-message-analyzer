@@ -42,7 +42,7 @@ func Callback(app *app.Application) gin.HandlerFunc {
 					}
 
 				case *linebot.FileMessage:
-					if err := lineHandler.handleFile(message, event.ReplyToken); err != nil {
+					if err := lineHandler.handleFile(ctx, app, message, event.ReplyToken); err != nil {
 						log.Print(err)
 					}
 				default:
@@ -76,13 +76,6 @@ func Callback(app *app.Application) gin.HandlerFunc {
 				log.Printf("Unknown event: %v", event)
 			}
 		}
-		//events, err := myBot.ParseRequest(c.Request)
-		// ctx := c.Request.Context()
-		// err := AnalyzeService.CreateAnalyze(ctx, analyze.CreateAnalyzeParm{})
-		// if err != nil {
-		// 	fmt.Println(err)
-		// }
-		// c.JSON(http.StatusOK, "")
 
 	}
 
@@ -139,295 +132,6 @@ func (l *LineHandler) handleText(ctx context.Context, app *app.Application, mess
 		).Do(); err != nil {
 			return err
 		}
-	case "flex":
-		// {
-		//   "type": "bubble",
-		//   "body": {
-		//     "type": "box",
-		//     "layout": "horizontal",
-		//     "contents": [
-		//       {
-		//         "type": "text",
-		//         "text": "Hello,"
-		//       },
-		//       {
-		//         "type": "text",
-		//         "text": "World!"
-		//       }
-		//     ]
-		//   }
-		// }
-		contents := &linebot.BubbleContainer{
-			Type: linebot.FlexContainerTypeBubble,
-			Body: &linebot.BoxComponent{
-				Type:   linebot.FlexComponentTypeBox,
-				Layout: linebot.FlexBoxLayoutTypeHorizontal,
-				Contents: []linebot.FlexComponent{
-					&linebot.TextComponent{
-						Type: linebot.FlexComponentTypeText,
-						Text: "Hello,",
-					},
-					&linebot.TextComponent{
-						Type: linebot.FlexComponentTypeText,
-						Text: "World!",
-					},
-				},
-			},
-		}
-		if _, err := l.bot.ReplyMessage(
-			replyToken,
-			linebot.NewFlexMessage("Flex message alt text", contents),
-		).Do(); err != nil {
-			return err
-		}
-	case "flex carousel":
-		// {
-		//   "type": "carousel",
-		//   "contents": [
-		//     {
-		//       "type": "bubble",
-		//       "body": {
-		//         "type": "box",
-		//         "layout": "vertical",
-		//         "contents": [
-		//           {
-		//             "type": "text",
-		//             "text": "First bubble"
-		//           }
-		//         ]
-		//       }
-		//     },
-		//     {
-		//       "type": "bubble",
-		//       "body": {
-		//         "type": "box",
-		//         "layout": "vertical",
-		//         "contents": [
-		//           {
-		//             "type": "text",
-		//             "text": "Second bubble"
-		//           }
-		//         ]
-		//       }
-		//     }
-		//   ]
-		// }
-		contents := &linebot.CarouselContainer{
-			Type: linebot.FlexContainerTypeCarousel,
-			Contents: []*linebot.BubbleContainer{
-				{
-					Type: linebot.FlexContainerTypeBubble,
-					Body: &linebot.BoxComponent{
-						Type:   linebot.FlexComponentTypeBox,
-						Layout: linebot.FlexBoxLayoutTypeVertical,
-						Contents: []linebot.FlexComponent{
-							&linebot.TextComponent{
-								Type: linebot.FlexComponentTypeText,
-								Text: "First bubble",
-							},
-						},
-					},
-				},
-				{
-					Type: linebot.FlexContainerTypeBubble,
-					Body: &linebot.BoxComponent{
-						Type:   linebot.FlexComponentTypeBox,
-						Layout: linebot.FlexBoxLayoutTypeVertical,
-						Contents: []linebot.FlexComponent{
-							&linebot.TextComponent{
-								Type: linebot.FlexComponentTypeText,
-								Text: "Second bubble",
-							},
-						},
-					},
-				},
-			},
-		}
-		if _, err := l.bot.ReplyMessage(
-			replyToken,
-			linebot.NewFlexMessage("Flex message alt text", contents),
-		).Do(); err != nil {
-			return err
-		}
-	case "flex json":
-		jsonString := `{
-  "type": "bubble",
-  "hero": {
-    "type": "image",
-    "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png",
-    "size": "full",
-    "aspectRatio": "20:13",
-    "aspectMode": "cover",
-    "action": {
-      "type": "uri",
-      "uri": "http://linecorp.com/"
-    }
-  },
-  "body": {
-    "type": "box",
-    "layout": "vertical",
-    "contents": [
-      {
-        "type": "text",
-        "text": "Brown Cafe",
-        "weight": "bold",
-        "size": "xl"
-      },
-      {
-        "type": "box",
-        "layout": "baseline",
-        "margin": "md",
-        "contents": [
-          {
-            "type": "icon",
-            "size": "sm",
-            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
-          },
-          {
-            "type": "icon",
-            "size": "sm",
-            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
-          },
-          {
-            "type": "icon",
-            "size": "sm",
-            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
-          },
-          {
-            "type": "icon",
-            "size": "sm",
-            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
-          },
-          {
-            "type": "icon",
-            "size": "sm",
-            "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gray_star_28.png"
-          },
-          {
-            "type": "text",
-            "text": "4.0",
-            "size": "sm",
-            "color": "#999999",
-            "margin": "md",
-            "flex": 0
-          }
-        ]
-      },
-      {
-        "type": "box",
-        "layout": "vertical",
-        "margin": "lg",
-        "spacing": "sm",
-        "contents": [
-          {
-            "type": "box",
-            "layout": "baseline",
-            "spacing": "sm",
-            "contents": [
-              {
-                "type": "text",
-                "text": "Place",
-                "color": "#aaaaaa",
-                "size": "sm",
-                "flex": 1
-              },
-              {
-                "type": "text",
-                "text": "Miraina Tower, 4-1-6 Shinjuku, Tokyo",
-                "wrap": true,
-                "color": "#666666",
-                "size": "sm",
-                "flex": 5
-              }
-            ]
-          },
-          {
-            "type": "box",
-            "layout": "baseline",
-            "spacing": "sm",
-            "contents": [
-              {
-                "type": "text",
-                "text": "Time",
-                "color": "#aaaaaa",
-                "size": "sm",
-                "flex": 1
-              },
-              {
-                "type": "text",
-                "text": "10:00 - 23:00",
-                "wrap": true,
-                "color": "#666666",
-                "size": "sm",
-                "flex": 5
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  "footer": {
-    "type": "box",
-    "layout": "vertical",
-    "spacing": "sm",
-    "contents": [
-      {
-        "type": "button",
-        "style": "link",
-        "height": "sm",
-        "action": {
-          "type": "uri",
-          "label": "CALL",
-          "uri": "https://linecorp.com"
-        }
-      },
-      {
-        "type": "button",
-        "style": "link",
-        "height": "sm",
-        "action": {
-          "type": "uri",
-          "label": "WEBSITE",
-          "uri": "https://linecorp.com",
-          "altUri": {
-            "desktop": "https://line.me/ja/download"
-          }
-        }
-      },
-      {
-        "type": "spacer",
-        "size": "sm"
-      }
-    ],
-    "flex": 0
-  }
-}`
-		contents, err := linebot.UnmarshalFlexMessageJSON([]byte(jsonString))
-		if err != nil {
-			return err
-		}
-		if _, err := l.bot.ReplyMessage(
-			replyToken,
-			linebot.NewFlexMessage("Flex message alt text", contents),
-		).Do(); err != nil {
-			return err
-		}
-	case "imagemap":
-		if _, err := l.bot.ReplyMessage(
-			replyToken,
-			linebot.NewImagemapMessage(
-				"appBaseURL"+"/static/rich",
-				"Imagemap alt text",
-				linebot.ImagemapBaseSize{Width: 1040, Height: 1040},
-				linebot.NewURIImagemapAction("LINE Store Manga", "https://store.line.me/family/manga/en", linebot.ImagemapArea{X: 0, Y: 0, Width: 520, Height: 520}),
-				linebot.NewURIImagemapAction("LINE Store Music", "https://store.line.me/family/music/en", linebot.ImagemapArea{X: 520, Y: 0, Width: 520, Height: 520}),
-				linebot.NewURIImagemapAction("LINE Store Play", "https://store.line.me/family/play/en", linebot.ImagemapArea{X: 0, Y: 520, Width: 520, Height: 520}),
-				linebot.NewMessageImagemapAction("URANAI!", "URANAI!", linebot.ImagemapArea{X: 520, Y: 520, Width: 520, Height: 520}),
-			),
-		).Do(); err != nil {
-			return err
-		}
 
 	default:
 		log.Printf("Echo message to %s: %s", replyToken, message.Text)
@@ -441,16 +145,21 @@ func (l *LineHandler) handleText(ctx context.Context, app *app.Application, mess
 	return nil
 }
 
-func (l *LineHandler) handleFile(message *linebot.FileMessage, replyToken string) error {
+func (l *LineHandler) handleFile(ctx context.Context, app *app.Application, message *linebot.FileMessage, replyToken string) error {
+	// content, err := l.bot.GetMessageContent(message.ID).Do()
+	// if err != nil {
+	// 	return l.replyText(replyToken, err.Error())
+	// }
 	content, err := l.bot.GetMessageContent(message.ID).Do()
 	if err != nil {
 		return l.replyText(replyToken, err.Error())
 	}
+	last, err := app.AnalyzeService.StartAnalyze(content.Content)
+	if err != nil {
+		return l.replyText(replyToken, err.Error())
+	}
 
-	fmt.Println(content.Content)
-
-	defer content.Content.Close()
-	return l.replyText(replyToken, fmt.Sprintf("File `%s` (%d bytes) received.", message.FileName, message.FileSize))
+	return l.replyText(replyToken, fmt.Sprintf("File `%s` (%d bytes) received. %s", message.FileName, message.FileSize, last))
 }
 
 func (l *LineHandler) replyText(replyToken, text string) error {
